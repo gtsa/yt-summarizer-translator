@@ -1,9 +1,10 @@
 # Tasks — MVP
 
 ## Repo scaffolding
-- [ ] Backend project skeleton (Node.js + TypeScript)
-- [ ] Frontend project skeleton (React + Vite)
-- [ ] Shared types/interfaces
+- [ ] Next.js full-stack app skeleton (App Router)
+- [ ] API route handler scaffold (`app/api/summarize`)
+- [ ] Server-side pipeline modules (audio → transcription → summarisation → translation)
+- [ ] Shared types / schemas between API and UI
 - [ ] Docker setup for local development
 
 ---

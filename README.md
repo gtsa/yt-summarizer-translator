@@ -28,6 +28,20 @@ so the tool does **not depend on YouTube captions being present or retrievable**
 
 ---
 
+## Architecture (MVP)
+
+This project is implemented as a **single Next.js full-stack application**.
+
+- The **API** is implemented using Next.js route handlers (`app/api/*`)
+- The **core processing pipeline** (audio extraction, transcription, summarisation, translation)
+  lives in server-only modules
+- The **frontend** is a mobile-first React UI rendered by Next.js
+- All clients (web app, PWA, future CLI) call the same internal pipeline
+
+This keeps the MVP simple, deployable as a single service, and easy to reason about.
+
+---
+
 ## Why Whisper is the MVP strategy (important)
 
 YouTube transcripts/captions are not reliably available or retrievable for all videos.
