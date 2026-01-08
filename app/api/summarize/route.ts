@@ -45,12 +45,19 @@ export async function POST(req: Request) {
       );
     }
 
+
     if (err instanceof AudioExtractionError) {
-      return NextResponse.json(
-        { error: { code: err.code, message: err.message } },
-        { status: 400 }
-      );
+      const payload: any = { error: { code: err.kind, message: err.message } };
+
+      // DEV ONLY: surface diagnostics
+      if (process.env.NODE_ENV !== "production") {
+        payload.error.details = err.details;
+      }
+
+      const status = err.kind === "INVALID_INPUT" ? 400 : 500;
+      return NextResponse.json(payload, { status });
     }
+
 
     // Zod parsing errors (if any)
     if (err instanceof z.ZodError) {

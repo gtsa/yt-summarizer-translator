@@ -54,3 +54,9 @@ Thumbs.db
 # Project-specific
 # =========================
 ai-behaviour.txt
+
+# =========================
+# Runtime artifacts (audio extraction)
+# =========================
+var/audio/*
+!var/audio/.gitkeep
