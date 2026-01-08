@@ -3,7 +3,10 @@
 import { useState } from "react";
 
 type ApiResponse =
-  | { transcript?: { text: string; language?: string }; metadata?: { videoId: string } }
+  | {
+      transcript?: { text: string; language?: string };
+      metadata?: { videoId: string; durationSec?: number };
+    }
   | { error: { code: string; message: string } };
 
 export default function Page() {
@@ -57,7 +60,7 @@ export default function Page() {
       {res && "transcript" in res && res.transcript && (
         <div className="rounded-md border p-4 space-y-2">
           <div className="text-sm text-muted-foreground">
-            videoId: {res.metadata?.videoId} · lang: {res.transcript.language ?? "?"}
+            videoId: {res.metadata?.videoId} · lang: {res.transcript.language ?? "?"} · duration: {res.metadata?.durationSec ?? "?"}s
           </div>
           <pre className="whitespace-pre-wrap text-sm">{res.transcript.text}</pre>
         </div>
