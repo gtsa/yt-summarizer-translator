@@ -3,8 +3,9 @@ import { z } from "zod";
 import { SummarizeRequestSchema } from "@/lib/types/api";
 import { getTranscriptFromYoutubeUrl } from "@/lib/server/transcript";
 import { YoutubeUrlError } from "@/lib/server/youtube";
+import { AudioExtractionError } from "@/lib/server/audio/errors";
 
-export const runtime = "nodejs"; // important later for yt-dlp/ffmpeg
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
@@ -24,18 +25,27 @@ export async function POST(req: Request) {
     }
 
     const { url } = parsed.data;
-    const { videoId, transcript } = await getTranscriptFromYoutubeUrl(url);
+
+    const { videoId, transcript, durationSec } =
+      await getTranscriptFromYoutubeUrl(url);
 
     return NextResponse.json(
       {
         transcript,
-        metadata: { videoId },
+        metadata: { videoId, durationSec },
       },
       { status: 200 }
     );
   } catch (err) {
     // Known validation errors
     if (err instanceof YoutubeUrlError) {
+      return NextResponse.json(
+        { error: { code: err.code, message: err.message } },
+        { status: 400 }
+      );
+    }
+
+    if (err instanceof AudioExtractionError) {
       return NextResponse.json(
         { error: { code: err.code, message: err.message } },
         { status: 400 }
