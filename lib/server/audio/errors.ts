@@ -4,7 +4,8 @@ export type AudioErrorKind =
   | "DOWNLOAD_FAILED"
   | "CONVERT_FAILED"
   | "PROBE_FAILED"
-  | "IO_FAILED";
+  | "IO_FAILED"
+  | "VIDEO_TOO_LONG";
 
 export class AudioExtractionError extends Error {
   public readonly kind: AudioErrorKind;
