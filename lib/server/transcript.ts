@@ -1,25 +1,20 @@
 import { extractAudioFromYoutubeUrl } from "./audio";
-import { parseYoutubeUrl } from "./youtube";
 import type { TranscriptResult } from "@/lib/types/transcript";
+import { transcribeAudioFileOpenAI } from "./transcription/openai";
 
-/**
- * Transcript still stubbed; Whisper comes next.
- */
 export async function getTranscriptFromYoutubeUrl(url: string): Promise<{
   videoId: string;
   transcript: TranscriptResult;
   durationSec?: number;
 }> {
-  const { videoId } = parseYoutubeUrl(url);
-
-  // Real audio extraction (produces ./var/audio/{videoId}.wav)
   const extracted = await extractAudioFromYoutubeUrl(url);
 
-  // Stubbed transcript output (to be replaced by Whisper integration)
+  const t = await transcribeAudioFileOpenAI(extracted.audioPath);
+
   const transcript: TranscriptResult = {
-    text: `Stub transcript for videoId=${videoId}. (Whisper integration comes next.)`,
-    language: "en",
+    text: t.text,
+    language: t.language,
   };
 
-  return { videoId, transcript, durationSec: extracted.durationSec };
+  return { videoId: extracted.videoId, transcript, durationSec: extracted.durationSec };
 }

@@ -11,12 +11,39 @@ import { downloadYoutubeAudioToTempFile } from "./ytdlp";
 import { convertToWhisperWav } from "./ffmpeg";
 import { probeDurationSec } from "./ffprobe";
 
+const DEFAULT_MAX_DURATION_SEC = 20 * 60;
+
+function getMaxVideoDurationSec(): number {
+  const raw = process.env.MAX_VIDEO_DURATION_SEC;
+  const parsed = raw ? Number(raw) : NaN;
+
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  return DEFAULT_MAX_DURATION_SEC;
+}
+
+const MAX_DURATION_SEC = getMaxVideoDurationSec();
+
 async function fileExistsNonEmpty(p: string): Promise<boolean> {
   try {
     const st = await fs.stat(p);
     return st.isFile() && st.size > 0;
   } catch {
     return false;
+  }
+}
+
+function enforceMaxDuration(durationSec: number | undefined): void {
+  if (typeof durationSec !== "number" || !Number.isFinite(durationSec)) return;
+
+  if (durationSec > MAX_DURATION_SEC) {
+    throw new AudioExtractionError(
+      "VIDEO_TOO_LONG",
+      `Video too long: ${Math.ceil(durationSec)}s (max ${MAX_DURATION_SEC}s)`,
+      { details: { durationSec, maxDurationSec: MAX_DURATION_SEC } }
+    );
   }
 }
 
@@ -54,6 +81,7 @@ export async function extractAudioFromYoutubeUrl(url: string): Promise<Extracted
   // Cache hit
   if (await fileExistsNonEmpty(outPath)) {
     const durationSec = await probeDurationSec(outPath);
+    enforceMaxDuration(durationSec);
     return { videoId, audioPath: outPath, durationSec, format: "wav" };
   }
 
@@ -78,6 +106,7 @@ export async function extractAudioFromYoutubeUrl(url: string): Promise<Extracted
     }
 
     const durationSec = await probeDurationSec(outPath);
+    enforceMaxDuration(durationSec);
 
     return { videoId, audioPath: outPath, durationSec, format: "wav" };
   } catch (err: any) {
